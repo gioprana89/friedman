@@ -271,7 +271,28 @@ modul_friedman_test_ui <- function(id) {
                
                
                
+               br(),
+               br(),
                
+               
+               h2("Result of Multiple Comparison Test with Wilcoxon Test", style="
+    font-family: 'cursive';
+    color: 	blue;
+    font-size:30px;
+    font-weight: bold; 
+    text-align:center
+    
+    "),
+               
+               
+               radioButtons(ns("Friedman_wilcoxon_test_method"), h4("Method:",style="color:orange;text-shadow: -1px 0 black,
+                                                     0 1px black, 1px 0 black, 0 -1px black; text-align:left"), c('Exact'='1', 'Asymptotic' = '2'  ), inline=TRUE, selected = "2"   ),
+               
+               
+               
+               
+               
+               DT::DTOutput(ns("Friedman_wilcoxon_test")),
                
                
                br()
@@ -912,6 +933,143 @@ modul_friedman_test_server <- function(input, output, session) {
     print(df)
     
   })
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  ###########Multiple Comparison: Wilcoxon###########
+  
+  
+  
+  Friedman_wilcoxon_test <- reactive({
+    
+    
+    dat <- kirim_data()
+    
+    dat <- as.data.frame(dat)
+    
+    variabel_terpilih <- input$terpilih_variabel_friedman_chooser
+    variabel_terpilih <- unlist(variabel_terpilih)
+    
+    dat <- dat[c(variabel_terpilih)]
+    
+    
+    
+    
+    get_name = colnames(dat)
+    
+    name = colnames(dat)
+    length_name = length(name)
+    
+    
+    
+    
+    length_dat = length(dat)
+    
+    
+    decimal = input$decimals_friedman
+    
+    
+    make_matrix = matrix(nrow = length_dat, ncol = length_dat)
+    
+    
+    get_method = input$Friedman_wilcoxon_test_method
+    get_method = as.numeric(get_method)
+    
+    
+    if(get_method==1)
+    {
+      choose_exact = TRUE
+    }
+    
+    if(get_method==2)
+    {
+      choose_exact = FALSE
+    }
+    
+    
+    for(i in 1 : length_dat)
+    {
+      
+      for(j in i : length_dat)
+      {
+        result = wilcox.test(dat[,i],dat[,j], correct = FALSE, paired = TRUE, exact = choose_exact)
+        
+        p_value = result$p.value
+        p_value = unlist(p_value)
+        p_value = round(p_value, digits = decimal)
+        p_value
+        
+        make_matrix[i,j] = p_value
+        
+        
+      }
+      
+    }
+    
+    make_matrix = as.data.frame(make_matrix)
+    
+    
+    
+    
+    colnames(make_matrix) = c(get_name)
+    rownames(make_matrix) = c(get_name)
+    
+    #make_matrix = colnames(col_name)
+    #make_matrix = rownames(row_name)
+    
+    
+    DT::datatable(make_matrix, rownames = TRUE)
+    
+    
+    
+    
+    
+  })
+  
+  
+  output$Friedman_wilcoxon_test <- DT::renderDT({
+    print(Friedman_wilcoxon_test() )
+  })
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   
